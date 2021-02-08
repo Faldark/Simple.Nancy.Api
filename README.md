@@ -1,6 +1,16 @@
 # Simple.Nancy.Api
 The purpose of this exercise is check the candidate’s ability to create a standalone RESTful API web application using the Nancy framework for .Net.
 
+# Conclusions or why there is no test coverage
+
+I was not able to implement unit tests by using inbuild nancy's test library. Nancy is outdated and non-supported, i tried to download example of nancy-based project and it just wont start.
+When i tried some "hybrid" of nancy's test library and nUnit in a separate project nancy's browser didnt bootstrap properly and in the end i would had to mock everything(including nancy) which would take a while
+and due to nancy beign outdated im not sure if it would even work.
+
+Also i was not able to properly use Configuration to support api-key, url and other stuff from appsettings.json, i guess thats because of Nancy, ASP.Net Core by default injects Configuration into Controllers
+but due to Nancy beign Nancy i was not able to inject Configuration into it.
+
+
 #Requirements
 Simple Nancy Web Api Project
 
