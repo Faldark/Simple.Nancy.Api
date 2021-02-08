@@ -15,10 +15,8 @@ namespace Simple.Nancy.Api.Modules
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        public NYTimesModule(INyTimesTopStoriesApiCaller nyTimesTopStoriesApiCaller, 
-            INYTimesTopStoriesHelper nyTimesTopStoriesHelper)
+        public NYTimesModule(INYTimesTopStoriesHelper nyTimesTopStoriesHelper)
         {
-            INyTimesTopStoriesApiCaller nYTimesTopStoriesApiCaller = nyTimesTopStoriesApiCaller;
 
             Get("/", args => {
 
@@ -33,13 +31,18 @@ namespace Simple.Nancy.Api.Modules
             Get("/list/{section}", async args =>
             {
                 var articles = await nyTimesTopStoriesHelper.GetSpecificSectionArticles(args.section);
+                if (articles.Equals(null))
+                {
+                    throw new NullReferenceException("Something went wrong, try again later or provide different input");
+
+                }
                 return JsonSerializer.Serialize(articles, SerializeOptions);
             });
 
             Get("/list/{section}/first", async args =>
             {
-                var articles = await nyTimesTopStoriesHelper.GetSpecificSectionArticles(args.section);
-
+                IList<ArticleView> articles = await nyTimesTopStoriesHelper.GetSpecificSectionArticles(args.section);
+                
                 return $"{JsonSerializer.Serialize(articles.First(), SerializeOptions)}";
             });
 
@@ -52,6 +55,12 @@ namespace Simple.Nancy.Api.Modules
                 }
 
                 IList<ArticleView> articles = await nyTimesTopStoriesHelper.GetSpecificSectionArticles(args.section);
+                
+                var filteredArticles = articles.Where(a => a.Updated.Date == updatedDate.Date);
+                if (!filteredArticles.Any())
+                {
+                    return "There is nothing to be found by provided update date";
+                }
 
                 return $"{JsonSerializer.Serialize(articles.Where(a => a.Updated.Date == updatedDate.Date), SerializeOptions)}";
             });
@@ -60,7 +69,22 @@ namespace Simple.Nancy.Api.Modules
             {
                 var articles = await nyTimesTopStoriesHelper.GetDefaultSectionArticles();
 
-                return $"{JsonSerializer.Serialize(articles.Single(a => a.Link.EndsWith(args.shortUrl)), SerializeOptions)}";
+                ArticleView requestedArticle;
+                try
+                {
+                    requestedArticle = articles.SingleOrDefault(a => a.Link.EndsWith(args.shortUrl));
+
+                    if (requestedArticle == null)
+                    {
+                        return "There is nothing to be found by provided shortUrl";
+                    }
+                }
+                catch (Exception)
+                {
+                    return "Please provide shortUrl in XXXXXXX format, 2RwYf01 for example";
+                }
+
+                return $"{JsonSerializer.Serialize(requestedArticle, SerializeOptions)}";
             });
 
             Get("/group/{section}", async args =>

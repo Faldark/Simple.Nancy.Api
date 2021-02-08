@@ -16,9 +16,7 @@ namespace Simple.Nancy.Api
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseContentRoot(Directory.GetCurrentDirectory());
-                    //webBuilder.UseIISIntegration();
                     webBuilder.UseKestrel(o => o.AllowSynchronousIO = true);
-
 
                     webBuilder.UseStartup<Startup>();
                 });

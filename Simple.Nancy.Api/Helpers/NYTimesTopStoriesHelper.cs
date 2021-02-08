@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Text.Json;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Simple.Nancy.Api.Models.DTO;
@@ -9,10 +9,6 @@ namespace Simple.Nancy.Api.Helpers
 {
     public class NYTimesTopStoriesHelper : INYTimesTopStoriesHelper
     {
-        private static readonly JsonSerializerOptions SerializeOptions = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
         private readonly INyTimesTopStoriesApiCaller _nYTimesTopStoriesApiCaller;
 
         public NYTimesTopStoriesHelper(INyTimesTopStoriesApiCaller nYTimesTopStoriesApiCaller)
@@ -22,10 +18,17 @@ namespace Simple.Nancy.Api.Helpers
         
         public async Task<IList<ArticleView>> GetSpecificSectionArticles(string section)
         {
-            var res = await _nYTimesTopStoriesApiCaller.CallSpecificTopicSectionAsync(section);
-            var result = await res.Content.ReadAsStringAsync();
+                var res = await _nYTimesTopStoriesApiCaller.CallSpecificTopicSectionAsync(section);
+                var result = await res.Content.ReadAsStringAsync();
 
-            NYTopStoriesModel model = JsonConvert.DeserializeObject<NYTopStoriesModel>(result);
+                NYTopStoriesModel model = JsonConvert.DeserializeObject<NYTopStoriesModel>(result);
+
+
+            if (model.Articles.Equals(null))
+            {
+                throw new NullReferenceException("Something went wrong, try again later or provide different input");
+
+            }
 
             return model.Articles;
         }
@@ -36,7 +39,7 @@ namespace Simple.Nancy.Api.Helpers
             var result = await res.Content.ReadAsStringAsync();
 
             NYTopStoriesModel model = JsonConvert.DeserializeObject<NYTopStoriesModel>(result);
-
+            
             return model.Articles;
         }
     }

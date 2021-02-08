@@ -21,6 +21,7 @@ namespace Simple.Nancy.Api.Helpers
 
             var response = await _httpClient.GetAsync(requestUrl);
             response.EnsureSuccessStatusCode();
+
             return response;
         }
 

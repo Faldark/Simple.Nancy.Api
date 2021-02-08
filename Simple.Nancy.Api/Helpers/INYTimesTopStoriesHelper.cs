@@ -7,7 +7,6 @@ namespace Simple.Nancy.Api.Helpers
     public interface INYTimesTopStoriesHelper
     {
         public Task<IList<ArticleView>> GetSpecificSectionArticles(string section);
-
         public Task<IList<ArticleView>> GetDefaultSectionArticles();
     }
 }
