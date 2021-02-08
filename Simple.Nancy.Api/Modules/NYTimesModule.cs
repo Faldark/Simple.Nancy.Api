@@ -1,22 +1,22 @@
 ﻿using Nancy;
-using Newtonsoft.Json;
 using Simple.Nancy.Api.Helpers;
-using Simple.Nancy.Api.Models.DTO;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using Simple.Nancy.Api.Models.ViewModels;
 
 namespace Simple.Nancy.Api.Modules
 {
-    public class NYTimesModule : NancyModule
+    public sealed class NYTimesModule : NancyModule
     {
         private static readonly JsonSerializerOptions SerializeOptions = new JsonSerializerOptions
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        public NYTimesModule(INyTimesTopStoriesApiCaller nyTimesTopStoriesApiCaller)
+        public NYTimesModule(INyTimesTopStoriesApiCaller nyTimesTopStoriesApiCaller, 
+            INYTimesTopStoriesHelper nyTimesTopStoriesHelper)
         {
             INyTimesTopStoriesApiCaller nYTimesTopStoriesApiCaller = nyTimesTopStoriesApiCaller;
 
@@ -32,22 +32,15 @@ namespace Simple.Nancy.Api.Modules
 
             Get("/list/{section}", async args =>
             {
-                var res = await nYTimesTopStoriesApiCaller.CallSpecificTopicSectionAsync(args.section);
-                var result = await res.Content.ReadAsStringAsync();
-
-                NYTopStoriesModel model = JsonConvert.DeserializeObject<NYTopStoriesModel>(result);
-
-                return $"{System.Text.Json.JsonSerializer.Serialize(model.Articles, SerializeOptions)}";
+                var articles = await nyTimesTopStoriesHelper.GetSpecificSectionArticles(args.section);
+                return JsonSerializer.Serialize(articles, SerializeOptions);
             });
 
             Get("/list/{section}/first", async args =>
             {
-                var res = await nYTimesTopStoriesApiCaller.CallSpecificTopicSectionAsync(args.section);
-                var result = await res.Content.ReadAsStringAsync();
+                var articles = await nyTimesTopStoriesHelper.GetSpecificSectionArticles(args.section);
 
-                NYTopStoriesModel model = JsonConvert.DeserializeObject<NYTopStoriesModel>(result);
-
-                return $"{System.Text.Json.JsonSerializer.Serialize(model.Articles.First(), SerializeOptions)}";
+                return $"{JsonSerializer.Serialize(articles.First(), SerializeOptions)}";
             });
 
 
@@ -58,37 +51,29 @@ namespace Simple.Nancy.Api.Modules
                     throw new FormatException("Wrong date format, advised format is yyyy-MM-dd, example: 1992-12-31");
                 }
 
-                var res = await nYTimesTopStoriesApiCaller.CallSpecificTopicSectionAsync(args.section);
-                var result = await res.Content.ReadAsStringAsync();
+                IList<ArticleView> articles = await nyTimesTopStoriesHelper.GetSpecificSectionArticles(args.section);
 
-                NYTopStoriesModel model = JsonConvert.DeserializeObject<NYTopStoriesModel>(result);
-
-                return $"{System.Text.Json.JsonSerializer.Serialize(model.Articles.Where(a => a.Updated.Date == updatedDate.Date), SerializeOptions)}";
+                return $"{JsonSerializer.Serialize(articles.Where(a => a.Updated.Date == updatedDate.Date), SerializeOptions)}";
             });
 
             Get("/article/{shortUrl}", async args =>
             {
-                var res = await nYTimesTopStoriesApiCaller.CallDefaultTopicSectionAsync();
-                var content = await res.Content.ReadAsStringAsync();
+                var articles = await nyTimesTopStoriesHelper.GetDefaultSectionArticles();
 
-                NYTopStoriesModel model = JsonConvert.DeserializeObject<NYTopStoriesModel>(content);
-
-                return $"{System.Text.Json.JsonSerializer.Serialize(model.Articles.Single(a => a.Link.EndsWith(args.shortUrl)), SerializeOptions)}";
+                return $"{JsonSerializer.Serialize(articles.Single(a => a.Link.EndsWith(args.shortUrl)), SerializeOptions)}";
             });
 
             Get("/group/{section}", async args =>
             {
-                var res = await nYTimesTopStoriesApiCaller.CallSpecificTopicSectionAsync(args.section);
-                var result = await res.Content.ReadAsStringAsync();
+                IList<ArticleView> articles = await nyTimesTopStoriesHelper.GetSpecificSectionArticles(args.section);
 
-                NYTopStoriesModel model = JsonConvert.DeserializeObject<NYTopStoriesModel>(result);
-                
-                var groupedModel = model.Articles.GroupBy(a => a.Updated.Date).Select(x => new ArticleGroupByDateView
+                var groupedModel = articles.GroupBy(a => a.Updated.Date).Select(x => new ArticleGroupByDateView
                 {
-                    Date = x.Key.Date.ToString("yyyy-MM-dd"), Total = x.Count()
+                    Date = x.Key.Date.ToString("yyyy-MM-dd"),
+                    Total = x.Count()
                 });
-                
-                return $"{System.Text.Json.JsonSerializer.Serialize(groupedModel, SerializeOptions)}";
+
+                return $"{JsonSerializer.Serialize(groupedModel, SerializeOptions)}";
             });
         }
     }

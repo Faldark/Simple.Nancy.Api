@@ -1,7 +1,6 @@
 using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nancy.Owin;
@@ -19,6 +18,8 @@ namespace Simple.Nancy.Api
             {
                 c.BaseAddress = new Uri("https://api.nytimes.com/svc/topstories/v2/");
             });
+
+            services.AddTransient<INYTimesTopStoriesHelper, NYTimesTopStoriesHelper>();
 
         }
 
