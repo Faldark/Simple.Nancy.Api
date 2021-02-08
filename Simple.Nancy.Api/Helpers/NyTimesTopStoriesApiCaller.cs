@@ -1,19 +1,16 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 
 namespace Simple.Nancy.Api.Helpers
 {
-    public class NyTimesTopStoriesApiCaller
+    public class NyTimesTopStoriesApiCaller : INyTimesTopStoriesApiCaller
     {
-        private HttpClient Client { get; set; }
+        private HttpClient Client { get; }
         private readonly string mainUrl = "https://api.nytimes.com/svc/topstories/v2/";
         private readonly string apiKey = "api-key=k0XA0k0jJGAVuv8Jr5wAIcKDGPuznmRJ";
-        private readonly IConfiguration Configuration;
 
-        public  NyTimesTopStoriesApiCaller(IConfiguration configuration)
+        public  NyTimesTopStoriesApiCaller()
         {
-            Configuration = configuration;
             Client = new HttpClient();
         }
 

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Simple.Nancy.Api.Helpers;
 
 namespace Simple.Nancy.Api
 {
@@ -18,6 +19,7 @@ namespace Simple.Nancy.Api
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<INyTimesTopStoriesApiCaller, NyTimesTopStoriesApiCaller>();
             //services.AddControllers()
             //    .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
         }
