@@ -18,7 +18,7 @@ namespace Simple.Nancy.Api.Modules
 
         public NYTimesModule(INyTimesTopStoriesApiCaller nyTimesTopStoriesApiCaller)
         {
-            INyTimesTopStoriesApiCaller nyTimesTopStoriesApiCaller1 = nyTimesTopStoriesApiCaller;
+            INyTimesTopStoriesApiCaller nYTimesTopStoriesApiCaller = nyTimesTopStoriesApiCaller;
 
             Get("/", args => {
 
@@ -32,8 +32,7 @@ namespace Simple.Nancy.Api.Modules
 
             Get("/list/{section}", async args =>
             {
-                var res = await nyTimesTopStoriesApiCaller1.CallSpecificTopicSectionAsync(args.section);
-                res.EnsureSuccessStatusCode();
+                var res = await nYTimesTopStoriesApiCaller.CallSpecificTopicSectionAsync(args.section);
                 var result = await res.Content.ReadAsStringAsync();
 
                 NYTopStoriesModel model = JsonConvert.DeserializeObject<NYTopStoriesModel>(result);
@@ -43,8 +42,7 @@ namespace Simple.Nancy.Api.Modules
 
             Get("/list/{section}/first", async args =>
             {
-                var res = await nyTimesTopStoriesApiCaller1.CallSpecificTopicSectionAsync(args.section);
-                res.EnsureSuccessStatusCode();
+                var res = await nYTimesTopStoriesApiCaller.CallSpecificTopicSectionAsync(args.section);
                 var result = await res.Content.ReadAsStringAsync();
 
                 NYTopStoriesModel model = JsonConvert.DeserializeObject<NYTopStoriesModel>(result);
@@ -60,8 +58,7 @@ namespace Simple.Nancy.Api.Modules
                     throw new FormatException("Wrong date format, advised format is yyyy-MM-dd, example: 1992-12-31");
                 }
 
-                var res = await nyTimesTopStoriesApiCaller1.CallSpecificTopicSectionAsync(args.section);
-                res.EnsureSuccessStatusCode();
+                var res = await nYTimesTopStoriesApiCaller.CallSpecificTopicSectionAsync(args.section);
                 var result = await res.Content.ReadAsStringAsync();
 
                 NYTopStoriesModel model = JsonConvert.DeserializeObject<NYTopStoriesModel>(result);
@@ -71,8 +68,7 @@ namespace Simple.Nancy.Api.Modules
 
             Get("/article/{shortUrl}", async args =>
             {
-                var res = await nyTimesTopStoriesApiCaller1.CallDefaultTopicSectionAsync();
-                res.EnsureSuccessStatusCode();
+                var res = await nYTimesTopStoriesApiCaller.CallDefaultTopicSectionAsync();
                 var content = await res.Content.ReadAsStringAsync();
 
                 NYTopStoriesModel model = JsonConvert.DeserializeObject<NYTopStoriesModel>(content);
@@ -82,8 +78,7 @@ namespace Simple.Nancy.Api.Modules
 
             Get("/group/{section}", async args =>
             {
-                var res = await nyTimesTopStoriesApiCaller1.CallSpecificTopicSectionAsync(args.section);
-                res.EnsureSuccessStatusCode();
+                var res = await nYTimesTopStoriesApiCaller.CallSpecificTopicSectionAsync(args.section);
                 var result = await res.Content.ReadAsStringAsync();
 
                 NYTopStoriesModel model = JsonConvert.DeserializeObject<NYTopStoriesModel>(result);
